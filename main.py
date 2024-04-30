@@ -39,9 +39,11 @@ base_history = multi_step_push(10000,pos,x0,dh,vel,qm,dt,F)
 
 # visualization of the track
 from cyl_plot import multi_particles_3D
-multi_particles_3D(base_history, 'BasicFieldsHistory')
+multi_particles_3D(base_history, 'BasicFieldsHistory',['basic'])
 qq = 0
 
 #creating the distorted path
 d_hist = base_history*2.0
-multi_particles_3D(d_hist, 'History_mult_2',['basic','r*2.0'])
+h = torch.cat((base_history,d_hist),0)
+multi_particles_3D(h, 'History_mult_2',['basic','r*2.0'])
+qq = 0
