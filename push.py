@@ -26,9 +26,9 @@ def gather(lc,data):
     return val
 
 def get_field(xx,x0,dh,F):
-    el = []
-    bl = []
-    for x in xx:
+    el = torch.zeros_like(xx)
+    bl = torch.zeros_like(xx)
+    for i,x in enumerate(xx):
         Ex = F[0, : ,:, :]
         Ey = F[1, :, :, :]
         Ez = F[2, :, :, :]
@@ -42,16 +42,14 @@ def get_field(xx,x0,dh,F):
         bx = gather(lc,Bx)
         by = gather(lc,By)
         bz = gather(lc,Bz)
-        E = torch.tensor([ex,ey,ez])
-        B = torch.tensor([bx,by,bz])
-        el.append(E)
-        bl.append(B)
-    el = torch.cat(el)
-    el = el.reshape(int(el.shape[0] / 3), 3)
-    bl = torch.cat(bl)
-    bl = bl.reshape(int(bl.shape[0] / 3), 3)
-    el.requires_grad = True
-    bl.requires_grad = True
+        el[i, 0] = ex
+        el[i, 1] = ey
+        el[i, 2] = ez
+        bl[i, 0] = bx
+        bl[i, 1] = by
+        bl[i, 2] = bz
+
+
 
     return el,bl
 
@@ -86,9 +84,9 @@ def multi_step_push(NT,pos,x0,dh,vel,qm,dt,F):
         vel = push(pos, vel, qm, E, B, dt)
         # X[:,n,:] = pos
         # V[:,n,:] = vel
-        pos += vel * dt
+        pos = torch.add(pos,vel*dt)
         qq = 0
-        history[:, n, :] = pos[:, :]
+        history[:, n, :] = pos[:, :].clone()
     return history
 
 if __name__ == '__main__':
