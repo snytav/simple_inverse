@@ -6,7 +6,7 @@ import os
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 #dimensions
-N = 20
+N = 40
 # setting field as 4D cartesian tensor (Ex,Ey,Ez,Bx,By,Bz)
 F = torch.zeros(6,N,N,N)
 
@@ -52,7 +52,7 @@ lf = torch.max(torch.abs(torch.subtract(base_history,d_hist)))
 lf.backward(retain_graph=True)
 dF = F.grad
 h = torch.cat((base_history,d_hist),0)
-multi_particles_3D(h, 'History_mult_2',['basic','r*2.0'])
+multi_particles_3D(h, 'History_mult_2_N_40',['basic','r*2.0'])
 qq = 0
 optimizer = torch.optim.Adam([F],lr=0.01)
 optimizer.zero_grad()
