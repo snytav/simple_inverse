@@ -11,9 +11,9 @@ N = 40
 F = torch.zeros(6,N,N,N)
 
 # for magnetic field Bz 0.01 Tl
-B0 = 0.01
+B0 = torch.tensor([0.01],requires_grad=True)
 F[5,:,:,:] = B0
-F.requires_grad = True
+# F.requires_grad = True
 
 # particle initial settings
 q = -1.602176565e-19
@@ -22,8 +22,8 @@ c = 3e8  # m/sec- velocity of light
 R = 0.06  # characteristic radius
 qm = q / m
 vt = 1e3
-rL = m * vt / (np.abs(q) * np.linalg.norm(B0))
-wL = (np.abs(q) * np.linalg.norm(B0)) / (m)  # =eB/mc   Kotelkikov,Cebotaev, p.47
+rL = m * vt / (np.abs(q) * np.linalg.norm(B0.detach().numpy()))
+wL = (np.abs(q) * np.linalg.norm(B0.detach().numpy())) / (m)  # =eB/mc   Kotelkikov,Cebotaev, p.47
 L = 4*rL
 dh = L/N*torch.ones(3)
 pos = torch.tensor([[rL, 0, 0]])
@@ -54,11 +54,12 @@ dF = F.grad
 h = torch.cat((base_history,d_hist),0)
 multi_particles_3D(h, 'History_mult_2_N_40',['basic','r*2.0'])
 qq = 0
-optimizer = torch.optim.Adam([F],lr=0.01)
+optimizer = torch.optim.Adam([B0],lr=0.01)
 optimizer.zero_grad()
 lf = torch.max(torch.abs(torch.subtract(base_history,d_hist)))
 lf.backward(retain_graph=True)
 optimizer.step()
+F[5,:,:,:] = B0
 d_hist = multi_step_push(10000,pos,x0,dh,vel,qm,dt,F)
 lf = torch.max(torch.abs(torch.subtract(base_history,d_hist)))
 print(lf.item(),torch.max(F[5,:,:,:]).item())
